@@ -7,9 +7,10 @@ from Frames.progressBarFrame.progressBarFrame import ProgressBar
 from Data.sampleData import DataGenerator
 
 # Inicializar Pygame
+image = pygame.image.load('tuberias.png')
+
 pygame.init()
 # Cargar la imagen de las tuberías
-# image = pygame.image.load("tuberias.jpg")
 # Configurar la ventana
 info = pygame.display.Info()  # Obtiene información de la pantalla
 screen_width = info.current_w  # Ancho de la pantalla
@@ -51,12 +52,12 @@ while running:
 
     # Rellenar el fondo con color negro
     screen.fill(black)
-   # screen.blit(image, (50, 50))  # Posicionar la imagen en (50, 50)
 
     # Dibujar todos los frames en la pantalla
     terminal_frame.draw(screen, 50, 500)
     description_frame.draw(screen, 450, 500)
     json_response_frame.draw(screen, 1000, 500)
+    screen.blit(image, (50, 50))  # Posicionar la imagen en (50, 50)
 
     progress_bar.draw(screen)
 

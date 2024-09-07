@@ -9,14 +9,12 @@ class ProcessDescriptionFrame:
         self.surface = pygame.Surface((self.width, self.height))
         self.surface.fill((0, 0, 0))  # Fondo negro
         self.font = pygame.font.SysFont(None, 24)
-        self.text = ["Descripción del proceso:", "Aplicando: {"]
+        self.text = ["Descripción del proceso:"]
 
         # Agregar descripciones para cada tratamiento asignado
         for parametro, necesita_tratamiento in tratamientosAsignados.items():
             if necesita_tratamiento:
                 self.text.append(self.generar_descripcion_proceso(parametro))
-
-        self.text.append("}")
 
     def generar_descripcion_proceso(self, parametro):
         # Descripciones genéricas para cada tratamiento, puedes ajustar según sea necesario
