@@ -1,29 +1,36 @@
 import sys
 import pygame
-from Frames.processFrame.processFrame import ProcessFrame
+from Frames.processFrame.processFrame import ProcessFrame, asignarTratamientos
 from Frames.descriptionFrame.descriptionFrame import ProcessDescriptionFrame
 from Frames.jsonFrame.jsonFrame import JsonResponseFrame
 from Frames.progressBarFrame.progressBarFrame import ProgressBar
+from Data.sampleData import DataGenerator
+
 # Inicializar Pygame
 pygame.init()
-
+# Cargar la imagen de las tuberías
+# image = pygame.image.load("tuberias.jpg")
 # Configurar la ventana
-
 info = pygame.display.Info()  # Obtiene información de la pantalla
 screen_width = info.current_w  # Ancho de la pantalla
 screen_height = info.current_h  # Alto de la pantalla
 
-# Imprimir el ancho y alto de la pantalla
-print(f"Ancho de pantalla: {screen_width}, Alto de pantalla: {screen_height}")
-
 # Configurar el tamaño de la ventana para que ocupe toda la pantalla
 screen = pygame.display.set_mode((screen_width, screen_height))
+
+# Generar datos randoms
+data_generator = DataGenerator()
+datos_muestra = data_generator.generar_datos_random()
+
+# Procesar los tratamientos
+tratamientosAsignados = asignarTratamientos(datos_muestra)
 
 # Crear una instancia de las demás clases
 progress_bar = ProgressBar(0, screen_height // 2 - 20, screen_width, 40)
 terminal_frame = ProcessFrame()
-description_frame = ProcessDescriptionFrame()
-json_response_frame = JsonResponseFrame()
+description_frame = ProcessDescriptionFrame(tratamientosAsignados)
+json_response_frame = JsonResponseFrame(datos_muestra)
+
 # Configurar el nombre de la ventana
 pygame.display.set_caption('Interfaz Gráfica YakuMars')
 
@@ -42,29 +49,26 @@ while running:
         if event.type == pygame.QUIT:  # Evento de cerrar la ventana
             running = False
 
-    # Rellenar el fondo con color blanco
+    # Rellenar el fondo con color negro
     screen.fill(black)
+   # screen.blit(image, (50, 50))  # Posicionar la imagen en (50, 50)
 
     # Dibujar todos los frames en la pantalla
-    # Draw the frames on the screen
     terminal_frame.draw(screen, 50, 500)
     description_frame.draw(screen, 450, 500)
-    json_response_frame.draw(screen, 750, 500)
+    json_response_frame.draw(screen, 1000, 500)
 
-    # Actualizar el progreso (incrementa cada fotograma)
+    progress_bar.draw(screen)
+
+    # Actualizar la barra de progreso
     progress_value += progress_speed
     if progress_value > 100:
-        progress_value = 0  # Reinicia la barra cuando llegue al 100%
-
-        # Actualizar y dibujar la barra de progreso
+        progress_value = 0
     progress_bar.update(progress_value)
-    progress_bar.draw(screen)
 
     # Actualizar la pantalla
     pygame.display.flip()
-
-    # Controlar la velocidad de fotogramas
-    clock.tick(60)  # Limitar a 60 FPS
+    clock.tick(30)  # FPS
 
 # Salir de Pygame
 pygame.quit()
