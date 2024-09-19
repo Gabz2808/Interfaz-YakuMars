@@ -1,63 +1,69 @@
 import sys
 import pygame
-from Frames.processFrame.processFrame import ProcessFrame, asignarTratamientos
-from Frames.descriptionFrame.descriptionFrame import ProcessDescriptionFrame
-from Frames.jsonFrame.jsonFrame import JsonResponseFrame
-from Frames.progressBarFrame.progressBarFrame import ProgressBar
-from Data.sampleData import DataGenerator
-from anim.animations import Animations
+from Utils.fonts import Utils
+from Data.sampleData import DataGenerator, ProcesosNecesarios
+from Frames.plantaFrame import PlantaFrame
+from Frames.terminalFrame import TerminalFrame
+from Frames.reportFrame import ReporteFrame
 
 # Inicializar Pygame
 pygame.init()
 
-# Cargar la imagen de las tuberías
-image = pygame.image.load('tuberias.png')
-
-# Instancia de la clase Animations
-animations = Animations()
-
-# Configurar la ventana
+# Obtener la resolución del monitor
 info = pygame.display.Info()
 screen_width = info.current_w
 screen_height = info.current_h
+
+# Crear la instancia de Utils
+utils = Utils()
+
+# Crear instancias de DataGenerator y ProcesosNecesarios
+data_generator = DataGenerator()
+procesos = ProcesosNecesarios()
+
+# Configurar la pantalla al tamaño completo del monitor
 screen = pygame.display.set_mode((screen_width, screen_height))
 
-# Dividir el ancho de la pantalla en 3 secciones iguales
-section_width = screen_width // 3
+# Obtener los datos generados
+data = data_generator.generar_datos_random()
 
-# Generar datos randoms
-data_generator = DataGenerator()
-datos_muestra = data_generator.generar_datos_random()
+# Definir márgenes y espaciado entre los frames
+margin = 20
+frame_width = 400
+frame_height = 250  # Altura del frame de planta
+terminal_width = 300  # Ancho del frame de terminal reducido
+terminal_height = 200  # Altura del frame de terminal reducida
+spacing = 20
 
-# Procesar los tratamientos
-tratamientosAsignados = asignarTratamientos(datos_muestra)
+# Ajustar posiciones para el layout solicitado
+reporte_rect = pygame.Rect(screen_width - frame_width -
+                           margin, margin, frame_width, screen_height - 2 * margin)
 
-# Crear una instancia de las demás clases
-progress_bar = ProgressBar(0, screen_height // 2 - 20, screen_width, 40)
-terminal_frame = ProcessFrame()
-description_frame = ProcessDescriptionFrame(tratamientosAsignados)
-json_response_frame = JsonResponseFrame(datos_muestra)
+# La parte superior izquierda para planta_frame
+planta_rect = pygame.Rect(
+    margin, margin, screen_width - frame_width - 2 * margin, frame_height)
 
-# Configurar el nombre de la ventana
-pygame.display.set_caption('Interfaz Gráfica YakuMars')
+# Ajustar la posición de la barra de progreso para que esté justo debajo del planta_frame
+progress_bar_rect = pygame.Rect(
+    planta_rect.x + 15, planta_rect.bottom + 15, planta_rect.width - 30, 25)
 
-# Variables para controlar el progreso de la barra de progreso
-progress_value = 0
-progress_speed = 0.1
-clock = pygame.time.Clock()
+# Ajustar la posición del terminal_frame para que esté en medio del reporte_frame y el resto del espacio
+terminal_rect = pygame.Rect(
+    planta_rect.x, progress_bar_rect.bottom + 15, terminal_width, terminal_height)
 
-# Colores
-black = (0, 0, 0)
+# Ajustar el tamaño del frame de planta para llenar el espacio restante
+planta_frame_rect = pygame.Rect(margin, margin, screen_width - frame_width - 2 * margin,
+                                screen_height - (progress_bar_rect.height + terminal_height + 3 * spacing + 2 * margin))
 
-# Variables de control para los textos de los marcos
-terminal_text = "Procesos aplicados"
-description_text = "Descripción del proceso"
-json_response_text = "Datos generales"
+# Crear los frames con los datos generados
+reporte_frame = ReporteFrame(screen, reporte_rect, data)
+planta_frame = PlantaFrame(screen, planta_frame_rect, data)
+terminal_frame = TerminalFrame(
+    screen, terminal_rect, reporte_frame, planta_frame)  # Pasar planta_frame aquí
 
-# Variables de control para los estados de los textos
-terminal_text_key = "terminal_text"
-description_text_key = "description_text"
-json_response_text_key = "json_response_text"
+# Evaluar los tratamientos necesarios
+tratamientos_necesarios, ajustes = procesos.evaluar_tratamientos_necesarios(
+    data)
 
 # Bucle principal para mantener la ventana abierta
 running = True
@@ -66,38 +72,20 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Rellenar el fondo con color negro
-    screen.fill(black)
-    # Actualizar la barra de progreso
-    progress_value += progress_speed
-    if progress_value > 100:
-        progress_value = 0
-    progress_bar.update(progress_value)
-    progress_bar.draw(screen)
+    # Limpiar la pantalla
+    screen.fill(utils.whiteColor)
 
-    # Mostrar texto con efecto de escritura progresiva
-    animations.type_writer_text(
-        screen, "Bienvenido a YakuMars", (50, 50), key="welcome_text")
-    screen.blit(image, (200, 100))
+    # Actualizar los valores de los frames
+    planta_frame.data_value = data.get(planta_frame.data_key, "N/A")
+    terminal_frame.data_value = data.get(terminal_frame.data_key, "N/A")
 
-    # Aplicar el efecto de escritura progresiva para los textos de los marcos
-    animations.type_writer_text(
-        screen, json_response_text, (section_width // 2 - len(json_response_text) * 5 // 2, 300), key=json_response_text_key)
-    animations.type_writer_text(
-        screen, terminal_text, (section_width + section_width // 2 - len(terminal_text) * 5 // 2, 300), key=terminal_text_key)
-    animations.type_writer_text(
-        screen, description_text, (section_width * 2 + section_width // 2 - len(description_text) * 5 // 2, 300), key=description_text_key)
-
-    # Aplicar la animación de desplazamiento
-    animations.scroll_terminal_text(
-        screen, json_response_frame, screen_height, 50)
-    animations.scroll_terminal_text(screen, terminal_frame, screen_height, 450)
-    animations.scroll_terminal_text(
-        screen, description_frame, screen_height, 1000)
+    # Dibujar los frames actualizados
+    reporte_frame.draw()
+    planta_frame.draw()
+    terminal_frame.draw()
 
     # Actualizar la pantalla
     pygame.display.flip()
-    clock.tick(30)
 
 # Salir de Pygame
 pygame.quit()
