@@ -68,7 +68,7 @@ class TerminalFrame(Frame):
 
         if current_index < total_processes:
             process_desc = f"Proceso {current_index + 1}: Ejecutándose"
-            description = "Mejora en " + \
+            description =  \
                 self.report_frame.tratamientos_necesarios_list[current_index].split(":")[
                     0]
         else:

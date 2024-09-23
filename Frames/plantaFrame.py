@@ -4,7 +4,7 @@ from Frames.Frame import Frame
 
 class PlantaFrame(Frame):
     def __init__(self, screen, rect, data):
-        image_path = "planta.jpg"
+        image_path = "src/planta.jpg"
         # Inicializa la clase padre Frame
         title = "Imagen de Planta"
         data_key = "Turbidez"

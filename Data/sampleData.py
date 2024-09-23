@@ -39,39 +39,52 @@ class DataGenerator:
 
 class ProcesosNecesarios:
     def __init__(self):
-        """Define los umbrales de calidad para cada parámetro."""
+        """Define los umbrales de calidad para cada parámetro en relación con los procesos de tratamiento."""
         self.umbrales = {
-            "Turbidez": 5.0,  # NTU
-            "pH": (6.5, 8.5),  # Rango aceptable de pH
-            "ColiformesTotales": 0.0,  # Cualquier valor > 0 requiere tratamiento
-            "Conductividad": 1000.0,  # µS/cm
-            "OxígenoDisuelto": 5.0,  # mg/L mínimo
-            "Plomo": 0.01,  # mg/L máximo permitido
-            "Arsénico": 0.01,  # mg/L máximo permitido
-            "Mercurio": 0.002,  # mg/L máximo permitido
-            "Nitratos": 10.0,  # mg/L máximo permitido
-            "Nitritos": 1.0,  # mg/L máximo permitido
-            "PesticidasHerbicidas": 0.1,  # mg/L máximo permitido
-            "VOC": 0.1,  # mg/L máximo permitido
-            "Uranio": 15.0,  # pCi/L máximo permitido
-            "Radio": 3.0,  # pCi/L máximo permitido
-            "PM10": 50.0,  # µg/m³ máximo permitido
-            "PM2_5": 25.0,  # µg/m³ máximo permitido
-            "ConcentraciónGas": 100.0  # ppm máximo permitido
+            "Turbidez": (0, 5.0),  # NTU después de la trampa de sólidos
+            "pH": (6.5, 8.5),  # Rango aceptable de pH después de la aireación
+            "ColiformesTotales": 0.0,  # Después de la desinsectación UV
+            "OxígenoDisuelto": 5.0,  # Después de la aireación
+            "Plomo": 0.01,  # Después de los tratamientos químicos
+            "Arsénico": 0.01,
+            "Mercurio": 0.002,
+            "Nitratos": 10.0,
+            "Nitritos": 1.0,
+            "PesticidasHerbicidas": 0.1,
+            "VOC": 0.1,
+            "Uranio": 15.0,
+            "Radio": 3.0,
+            "ConcentraciónGas": 100.0  # Control de gases en el proceso
+        }
+
+        self.procesos = {
+            # Trampa de Grasa y Sedimentador
+            "Pretratamiento": ["Turbidez", "ColiformesTotales"],
+            # Tratamientos químicos
+            "Electrocoagulación": ["Plomo", "Arsénico", "Mercurio"],
+            # Filtración de contaminantes
+            "Filtro Multicapa": ["Nitratos", "Nitritos", "PesticidasHerbicidas"],
+            # Filtración avanzada
+            "Filtración por Membrana": ["VOC", "Uranio", "Radio"],
+            "Desinfección UV": ["ColiformesTotales"]  # Desinfección final
         }
 
     def evaluar_tratamientos_necesarios(self, datos):
         """Evalúa cada parámetro y determina si es necesario tratamiento y ajusta los datos."""
         tratamientos_asignados = {}
         ajustes = {}
+        procesos_necesarios = []
+
         for parametro, valor in datos.items():
             if parametro in self.umbrales:
                 umbral = self.umbrales[parametro]
                 if isinstance(umbral, tuple):
-                    # Para rangos como el pH
+                    # Para rangos como el pH y Turbidez
                     if not (umbral[0] <= valor <= umbral[1]):
                         tratamientos_asignados[parametro] = True
                         ajustes[parametro] = umbral[0] if valor < umbral[0] else umbral[1]
+                        procesos_necesarios += [proceso for proceso,
+                                                params in self.procesos.items() if parametro in params]
                     else:
                         tratamientos_asignados[parametro] = False
                 else:
@@ -79,35 +92,11 @@ class ProcesosNecesarios:
                     if valor > umbral:
                         tratamientos_asignados[parametro] = True
                         ajustes[parametro] = umbral - valor
+                        procesos_necesarios += [proceso for proceso,
+                                                params in self.procesos.items() if parametro in params]
                     else:
                         tratamientos_asignados[parametro] = False
             else:
-                # Si no hay un umbral definido, no se requiere tratamiento
                 tratamientos_asignados[parametro] = False
-        return tratamientos_asignados, ajustes
 
-
-# Ejemplo de uso
-if __name__ == "__main__":
-    procesos = ProcesosNecesarios()
-    data_generator = DataGenerator()
-    data = data_generator.generar_datos_random()
-
-    # Evaluar los tratamientos necesarios y ajustes
-    tratamientos_necesarios, ajustes, descripciones = procesos.evaluar_tratamientos_necesarios(
-        data)
-
-    # Obtener las claves de tratamientos necesarios
-    process_keys = list(tratamientos_necesarios.keys())
-
-    print("Tratamientos necesarios:")
-    for key in process_keys:
-        print(f"{key}: {'Sí' if tratamientos_necesarios[key] else 'No'}")
-
-    print("\nAjustes:")
-    for key, ajuste in ajustes.items():
-        print(f"{key}: Ajuste necesario de {ajuste:.2f}")
-
-    print("\nDescripciones:")
-    for key, descripcion in descripciones.items():
-        print(f"{key}: {descripcion}")
+        return tratamientos_asignados, ajustes, procesos_necesarios
