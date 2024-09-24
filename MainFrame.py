@@ -1,7 +1,7 @@
 import sys
 import pygame
-from Frames.iconFrame import IconFrame  # Importar IconFrame
-from Utils.utils import Utils  # Importar la clase Utils consolidada
+from Frames.iconFrame import IconFrame
+from Utils.utils import Utils
 from Data.sampleData import DataGenerator, ProcesosNecesarios
 from Frames.plantaFrame import PlantaFrame
 from Frames.terminalFrame import TerminalFrame
@@ -31,9 +31,9 @@ data = data_generator.generar_datos_random()
 # Definir márgenes y espaciado entre los frames
 margin = 20
 frame_width = 400
-frame_height = 250  # Altura del frame de planta
-terminal_width = 300  # Ancho del frame de terminal reducido
-terminal_height = 200  # Altura del frame de terminal reducida
+frame_height = 250
+terminal_width = 300
+terminal_height = 200
 spacing = 20
 
 # Ajustar posiciones para el layout solicitado
@@ -84,7 +84,7 @@ while running:
 
     # Dibujar los frames actualizados
     reporte_frame.draw()
-    planta_frame.draw()
+    planta_frame.draw()  # Se dibuja el frame con la imagen y el rectángulo centrado
     terminal_frame.draw()
 
     # Dibujar los íconos en el footer
