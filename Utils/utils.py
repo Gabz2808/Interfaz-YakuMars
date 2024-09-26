@@ -5,10 +5,6 @@ import pygame
 
 class Utils:
     def __init__(self):
-        # Definir las dimensiones de la pantalla
-        self.screen_width = 1200
-        self.screen_height = 600
-
         # Colores
         self.colors = {
             "black": (0, 0, 0),
@@ -22,6 +18,7 @@ class Utils:
             "violet": (238, 130, 238),
             "deep_pink": (255, 20, 147),
             "cyan": (0, 255, 255),
+            "lightblue": (173, 216, 230),  # Celeste (Light Blue)
             "custom_color_1": (255, 255, 255),  # Blanco
         }
 
@@ -36,6 +33,7 @@ class Utils:
             self.colors["violet"],
             self.colors["deep_pink"],
             self.colors["cyan"],
+            self.colors["lightblue"],
             self.colors["custom_color_1"],
         ] * 2  # Duplicar para tener más opciones
 

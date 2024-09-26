@@ -10,6 +10,11 @@ class ProcessQueue:
         self.process_duration = process_duration  # Duración en segundos
         self.current_process_time = 0  # Tiempo transcurrido para el proceso actual
 
+    def add_process(self):
+        """Añadir un proceso a la cola."""
+        self.queue.append(self.total_steps)
+        self.total_steps += 1
+
     def start_processing(self):
         self.processing = True
         self.current_step = 0
@@ -22,7 +27,7 @@ class ProcessQueue:
         # Acumular el tiempo transcurrido
         self.current_process_time += delta_time
 
-        # Si el proceso actual ha durado lo suficiente (5 segundos)
+        # Si el proceso actual ha durado lo suficiente
         if self.current_process_time >= self.process_duration:
             self.current_step += 1
             self.current_process_time = 0  # Reiniciar el tiempo para el próximo proceso
@@ -30,3 +35,7 @@ class ProcessQueue:
         # Si todos los procesos han terminado
         if self.current_step >= self.total_steps:
             self.processing = False
+
+    def is_processing(self):
+        """Verifica si se está procesando actualmente."""
+        return self.processing

@@ -10,32 +10,28 @@ class PlantaFrame(Frame):
         data_key = "Turbidez"
         data_value = data.get(data_key, "N/A")
 
-        # Inicializa la clase padre Frame
         super().__init__(screen, rect, title, data_key, data_value)
 
-        # Instancia de Utils para utilizar colores y otros recursos
         self.utils = Utils()
-
-        # Cargar la imagen de planta y ajustarla al tamaño del rectángulo
         self.image = pygame.image.load(image_path)
         self.image = pygame.transform.scale(
             self.image, (rect.width, rect.height))
-
-        # Inicializar lista para almacenar los rectángulos resaltados
         self.highlight_rects = []
-
-        # Controlar parpadeo
-        self.blink_time = 500  # Duración de visibilidad en ms (0.5 segundos)
-        self.last_blink = pygame.time.get_ticks()  # Última vez que parpadeó
-        self.visible = True  # Controla si el rectángulo es visible
+        self.blink_time = 400
+        self.last_blink = pygame.time.get_ticks()
+        self.visible = True
 
         # Llamar a los métodos que crean los rectángulos
-        self.create_center_rectangle()
-        self.create_green_rectangle()
-        self.create_blue_rectangle()
-        self.create_yellow_rectangle()
+        self.pretratamiento()
+        self.electrocuagulacion()
+        self.aireacion()
+        self.ultrafiltración()
+        self.aguaLimpia()  # Llamar al método para crear el nuevo rectángulo celeste
 
-    def create_center_rectangle(self):
+        # Inicializa la visibilidad de los rectángulos
+        self.rect_visibility = [False] * len(self.highlight_rects)
+
+    def pretratamiento(self):
         """Crear el rectángulo central rojo."""
         rect_width = 125
         rect_height = 80
@@ -46,7 +42,7 @@ class PlantaFrame(Frame):
         self.highlight_rects.append(
             (highlight_rect, self.utils.get_color("red")))
 
-    def create_green_rectangle(self):
+    def ultrafiltración(self):
         """Crear el rectángulo verde."""
         rect_width = 60
         rect_height = 80
@@ -54,9 +50,10 @@ class PlantaFrame(Frame):
         green_y = 200
         highlight_rect = pygame.Rect(green_x, green_y, rect_width, rect_height)
         self.highlight_rects.append(
+            # Color verde para ultrafiltración
             (highlight_rect, self.utils.get_color("green")))
 
-    def create_blue_rectangle(self):
+    def electrocuagulacion(self):
         """Crear el rectángulo azul."""
         rect_width = 140
         rect_height = 150
@@ -66,7 +63,7 @@ class PlantaFrame(Frame):
         self.highlight_rects.append(
             (highlight_rect, self.utils.get_color("blue")))
 
-    def create_yellow_rectangle(self):
+    def aireacion(self):
         """Crear el rectángulo amarillo."""
         rect_width = 117
         rect_height = 170
@@ -77,35 +74,57 @@ class PlantaFrame(Frame):
         self.highlight_rects.append(
             (highlight_rect, self.utils.get_color("yellow")))
 
+    def aguaLimpia(self):
+        """Crear el rectángulo celeste debajo del rectángulo verde."""
+        rect_width = 100
+        rect_height = 50
+        celeste_x = 680  # La misma posición x que el rectángulo verde
+        celeste_y = 280  # Posición y debajo del rectángulo verde
+        highlight_rect = pygame.Rect(
+            celeste_x, celeste_y, rect_width, rect_height)
+        self.highlight_rects.append(
+            (highlight_rect, self.utils.get_color("lightblue")))  # Color celeste
+
+    def update_visibility(self, current_index):
+        """Actualizar la visibilidad de los rectángulos según el índice actual."""
+
+        if current_index < len(self.highlight_rects):
+            # Inicializamos la visibilidad con todo en False
+            self.rect_visibility = [False] * len(self.highlight_rects)
+
+            # Configuración de visibilidad según el índice actual
+            if current_index == 0:  # Rojo
+                self.rect_visibility[0] = True
+            elif current_index == 1:  # Azul
+                self.rect_visibility[1] = True
+            elif current_index == 2:  # Amarillo
+                self.rect_visibility[2] = True
+            elif current_index in (3, 4, 5):  # Verde en los procesos 3, 4 y 5
+                self.rect_visibility[3] = True  # Mantener el verde visible
+
+            else:
+                # Desactiva todos si el índice es inválido
+                self.rect_visibility = [False] * len(self.highlight_rects)
+
     def draw(self):
         """Dibuja la imagen, los rectángulos resaltados, y el contenido del frame."""
-        # Dibuja el marco y el contenido de la clase padre
         super().draw()
-
-        # Dibuja la imagen dentro del rectángulo
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
 
-        # Control del parpadeo (intercala visibilidad)
+        # Control del parpadeo
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_blink >= self.blink_time:
-            self.visible = not self.visible  # Alternar visibilidad
-            self.last_blink = current_time  # Reiniciar el temporizador
+        if current_time - self.last_blink > self.blink_time:
+            self.visible = not self.visible
+            self.last_blink = current_time
 
-        # Solo dibujar los rectángulos si son visibles
-        if self.visible:
-            for highlight_rect, color in self.highlight_rects:
-                # Crear una superficie temporal con transparencia (usar canal alfa)
+        for i, (highlight_rect, color) in enumerate(self.highlight_rects):
+            if self.rect_visibility[i] and self.visible:
+                # Crear superficie transparente para el rectángulo
                 transparent_surface = pygame.Surface(
                     (highlight_rect.width, highlight_rect.height), pygame.SRCALPHA)
-
-                # Rellenar la superficie con color semitransparente (RGBA: color + transparencia)
-                # 128 es el valor de la transparencia (50%)
+                # Color con transparencia
                 transparent_surface.fill((*color, 128))
-
-                # Dibujar la superficie sobre la pantalla en la posición del rectángulo
                 self.screen.blit(transparent_surface,
                                  (highlight_rect.x, highlight_rect.y))
-
-                # Dibujar el borde sólido alrededor del rectángulo
-                # Borde de grosor 5
+                # Dibuja el borde del rectángulo
                 pygame.draw.rect(self.screen, color, highlight_rect, 5)

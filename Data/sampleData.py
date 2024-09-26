@@ -43,7 +43,9 @@ class ProcesosNecesarios:
         self.umbrales = {
             "Turbidez": (0, 5.0),  # NTU después de la trampa de sólidos
             "pH": (6.5, 8.5),  # Rango aceptable de pH después de la aireación
-            "ColiformesTotales": 0.0,  # Después de la desinsectación UV
+            "ColiformesTotales": 0.0,  # Después de la desinfección UV
+            "E_coli": 0.0,  # Después de la desinfección UV
+            "Conductividad": 1500.0,  # Umbral de conductividad aceptable
             "OxígenoDisuelto": 5.0,  # Después de la aireación
             "Plomo": 0.01,  # Después de los tratamientos químicos
             "Arsénico": 0.01,
@@ -54,6 +56,14 @@ class ProcesosNecesarios:
             "VOC": 0.1,
             "Uranio": 15.0,
             "Radio": 3.0,
+            "Temperatura": (10.0, 30.0),  # Temperatura aceptable en procesos
+            # Rango aceptable de humedad relativa
+            "HumedadRelativa": (30.0, 70.0),
+            # Umbral de presión atmosférica
+            "PresiónAtmosférica": (950.0, 1050.0),
+            "PM10": 50.0,  # Umbral de partículas PM10
+            "PM2_5": 25.0,  # Umbral de partículas PM2.5
+            "IntensidadLumínica": 500.0,  # Límite de intensidad lumínica
             "ConcentraciónGas": 100.0  # Control de gases en el proceso
         }
 
@@ -62,11 +72,14 @@ class ProcesosNecesarios:
             "Pretratamiento": ["Turbidez", "ColiformesTotales"],
             # Tratamientos químicos
             "Electrocoagulación": ["Plomo", "Arsénico", "Mercurio"],
-            # Filtración de contaminantes
-            "Filtro Multicapa": ["Nitratos", "Nitritos", "PesticidasHerbicidas"],
-            # Filtración avanzada
-            "Filtración por Membrana": ["VOC", "Uranio", "Radio"],
-            "Desinfección UV": ["ColiformesTotales"]  # Desinfección final
+            # Aireación
+            "Aireación": ["pH", "OxígenoDisuelto", "Conductividad"],
+            # Filtración por Membrana: Ultrafiltración
+            "Ultrafiltración": ["VOC", "Uranio", "Radio", "Nitratos", "Nitritos", "PesticidasHerbicidas"],
+            # Desinfección UV
+            "Desinfección UV": ["ColiformesTotales", "E_coli"],
+            # Tratamiento ambiental
+            "Tratamiento Ambiental": ["Temperatura", "HumedadRelativa", "PresiónAtmosférica", "PM10", "PM2_5", "IntensidadLumínica", "ConcentraciónGas"]
         }
 
     def evaluar_tratamientos_necesarios(self, datos):
@@ -79,7 +92,7 @@ class ProcesosNecesarios:
             if parametro in self.umbrales:
                 umbral = self.umbrales[parametro]
                 if isinstance(umbral, tuple):
-                    # Para rangos como el pH y Turbidez
+                    # Para rangos como el pH, Turbidez, etc.
                     if not (umbral[0] <= valor <= umbral[1]):
                         tratamientos_asignados[parametro] = True
                         ajustes[parametro] = umbral[0] if valor < umbral[0] else umbral[1]
