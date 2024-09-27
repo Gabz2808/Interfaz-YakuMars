@@ -25,15 +25,16 @@ class ReporteFrame:
             # Trampa de Grasa y Sedimentador
             "Pretratamiento": ["Turbidez", "ColiformesTotales"],
             # Tratamientos químicos
-            "Electrocoagulación": ["Plomo", "Arsénico", "Mercurio"],
+            "Electrocoagulación": ["Plomo", "Arsénico", "Mercurio", "ConcentraciónGas"],
             # Aireación
-            "Aireación": ["pH", "OxígenoDisuelto", "Conductividad"],
+            "Aireación": ["pH", "OxígenoDisuelto", "Conductividad", "PresiónAtmosférica"],
             # Filtración por Membrana: Ultrafiltración
             "Ultrafiltración": ["VOC", "Uranio", "Radio", "Nitratos", "Nitritos", "PesticidasHerbicidas"],
             # Desinfección UV
-            "Desinfección UV": ["ColiformesTotales", "E_coli"],
+            "Desinfección UV": ["ColiformesTotales", "E_coli", "IntensidadLumínica"],
             # Tratamiento ambiental
-            "Tratamiento Ambiental": ["Temperatura", "HumedadRelativa", "PresiónAtmosférica", "PM10", "PM2_5", "IntensidadLumínica", "ConcentraciónGas"]
+            # Por tratar:
+            # ["Temperatura", "HumedadRelativa", , "PM10", "PM2_5"]
         }
 
         # Colores y fuentes

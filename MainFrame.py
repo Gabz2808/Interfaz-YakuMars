@@ -6,6 +6,7 @@ from Data.sampleData import DataGenerator, ProcesosNecesarios
 from Frames.plantaFrame import PlantaFrame
 from Frames.terminalFrame import TerminalFrame
 from Frames.reportFrame import ReporteFrame
+from Frames.graphicFrame import GraphicFrame
 
 # Inicializar Pygame
 pygame.init()
@@ -48,6 +49,11 @@ terminal_rect = pygame.Rect(
 planta_frame_rect = pygame.Rect(margin, margin, screen_width - frame_width - 2 * margin,
                                 screen_height - (progress_bar_rect.height + terminal_height + 3 * spacing + 2 * margin))
 
+# Añadir un rectángulo para el gráfico más pequeño y abajo
+# Se reduce el tamaño del gráfico y se coloca más abajo
+graphic_frame_rect = pygame.Rect(
+    planta_rect.x, planta_rect.bottom + spacing + 50, frame_width // 2, frame_height // 2)
+
 # Crear los frames con los datos generados
 reporte_frame = ReporteFrame(screen, reporte_rect, data)
 planta_frame = PlantaFrame(screen, planta_frame_rect, data)
@@ -60,6 +66,9 @@ tratamientos_necesarios, ajustes, procesos_necesarios = procesos.evaluar_tratami
 
 # Crear el IconFrame
 icon_frame = IconFrame(screen, utils)
+
+# Crear la instancia de GraphicFrame con el rectángulo y los datos
+graphic_frame = GraphicFrame(ajustes)
 
 # Usar los colores de Utils
 whiteColor = utils.get_color("white")
@@ -81,6 +90,12 @@ while running:
     # Actualizar los valores de los frames
     planta_frame.data_value = data.get(planta_frame.data_key, "N/A")
     terminal_frame.data_value = data.get(terminal_frame.data_key, "N/A")
+
+    # Actualizar el gráfico con los datos relevantes
+    # Asegurarse de que los ajustes se actualizan
+    graphic_frame.data_values = ajustes
+    # Pasar el rectángulo para dibujar el gráfico en su nueva ubicación
+    graphic_frame.draw(screen)
 
     # Dibujar los frames actualizados
     reporte_frame.draw()
