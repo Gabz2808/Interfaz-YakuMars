@@ -21,20 +21,13 @@ class ReporteFrame:
         self.processing = False
 
         # Inicializa los procesos necesarios
+
         self.procesos = {
-            # Trampa de Grasa y Sedimentador
             "Pretratamiento": ["Turbidez", "ColiformesTotales"],
-            # Tratamientos químicos
             "Electrocoagulación": ["Plomo", "Arsénico", "Mercurio", "ConcentraciónGas"],
-            # Aireación
-            "Aireación": ["pH", "OxígenoDisuelto", "Conductividad", "PresiónAtmosférica"],
-            # Filtración por Membrana: Ultrafiltración
+            "Aireación": ["pH", "OxígenoDisuelto", "Conductividad", "PresiónAtmosférica", "PM10", "PM2_5", "HumedadRelativa", "Temperatura"],
             "Ultrafiltración": ["VOC", "Uranio", "Radio", "Nitratos", "Nitritos", "PesticidasHerbicidas"],
-            # Desinfección UV
-            "Desinfección UV": ["ColiformesTotales", "E_coli", "IntensidadLumínica"],
-            # Tratamiento ambiental
-            # Por tratar:
-            # ["Temperatura", "HumedadRelativa", , "PM10", "PM2_5"]
+            "Desinfección UV": ["ColiformesTotales", "E_coli", "IntensidadLumínica"]
         }
 
         # Colores y fuentes
@@ -184,6 +177,8 @@ class ReporteFrame:
             self.processing = False
             self.add_to_history(
                 f"[{time.strftime('%H:%M:%S')}] Se ha completado el flujo")
+            self.generar_reporte_md("reporte.md")
+
         else:
             self.start_time = time.time()
             self.add_to_history(f"[{time.strftime('%H:%M:%S')}] Proceso {
@@ -199,3 +194,35 @@ class ReporteFrame:
         if self.current_process_index < len(self.tratamientos_necesarios_list):
             return self.tratamientos_necesarios_list[self.current_process_index]
         return None
+
+    def update_data(self, new_data):
+        """Update the internal data and re-evaluate the necessary treatments."""
+        self.data = new_data  # Update with new data
+        # You may want to call other methods here to refresh your report based on the new data
+        self.prepare_report_data()  # Re-evaluate treatments if needed
+
+    def generar_reporte_md(self, filename="reporte.md"):
+        """
+        Genera un archivo .md con la información de este reporte.
+        """
+        try:
+            # Abrir archivo en modo de escritura
+            with open(filename, "w") as file:
+                # Escribir título del reporte
+                file.write("# Reporte de Progreso\n\n")
+
+                # Escribir la historia de procesos
+                file.write("## Historial de Procesos\n\n")
+                for entry in self.history:
+                    file.write(f"- {entry}\n")
+
+                # Escribir el reporte de ajustes
+                file.write("\n## Reporte de Ajustes\n\n")
+                for adjustment in self.ajustes_list:
+                    file.write(f"- {adjustment}\n")
+
+                # Informar que el archivo ha sido creado
+                print(f"Reporte generado exitosamente en '{filename}'")
+
+        except Exception as e:
+            print(f"Error al generar el reporte: {e}")

@@ -118,3 +118,8 @@ class TerminalFrame(Frame):
             # Asume que el rectángulo celeste es el índice 2
             self.planta_frame.rect_visibility[4] = True
             self.planta_frame.rect_visibility[3] = False
+
+    def update_data(self, data):
+        # Example logic to update some internal state or display based on new data
+        self.current_data = data  # Storing data in an instance variable
+        # Update any other necessary state or redraw the frame

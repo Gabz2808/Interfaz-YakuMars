@@ -76,7 +76,7 @@ class ProcesosNecesarios:
         self.procesos = {
             "Pretratamiento": ["Turbidez", "ColiformesTotales"],
             "Electrocoagulación": ["Plomo", "Arsénico", "Mercurio", "ConcentraciónGas"],
-            "Aireación": ["pH", "OxígenoDisuelto", "Conductividad", "PresiónAtmosférica"],
+            "Aireación": ["pH", "OxígenoDisuelto", "Conductividad", "PresiónAtmosférica", "PM10", "PM2_5", "HumedadRelativa", "Temperatura"],
             "Ultrafiltración": ["VOC", "Uranio", "Radio", "Nitratos", "Nitritos", "PesticidasHerbicidas"],
             "Desinfección UV": ["ColiformesTotales", "E_coli", "IntensidadLumínica"]
         }

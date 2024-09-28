@@ -26,9 +26,6 @@ procesos = ProcesosNecesarios()
 # Configurar la pantalla al tamaño completo del monitor
 screen = pygame.display.set_mode((screen_width, screen_height))
 
-# Obtener los datos generados
-data = data_generator.generar_datos_random()
-
 # Definir márgenes y espaciado entre los frames
 margin = 20
 frame_width = 400
@@ -50,11 +47,11 @@ planta_frame_rect = pygame.Rect(margin, margin, screen_width - frame_width - 2 *
                                 screen_height - (progress_bar_rect.height + terminal_height + 3 * spacing + 2 * margin))
 
 # Añadir un rectángulo para el gráfico más pequeño y abajo
-# Se reduce el tamaño del gráfico y se coloca más abajo
 graphic_frame_rect = pygame.Rect(
     planta_rect.x, planta_rect.bottom + spacing + 50, frame_width // 2, frame_height // 2)
 
 # Crear los frames con los datos generados
+data = data_generator.generar_datos_random()
 reporte_frame = ReporteFrame(screen, reporte_rect, data)
 planta_frame = PlantaFrame(screen, planta_frame_rect, data)
 terminal_frame = TerminalFrame(
@@ -64,8 +61,23 @@ terminal_frame = TerminalFrame(
 tratamientos_necesarios, ajustes, procesos_necesarios = procesos.evaluar_tratamientos_necesarios(
     data)
 
-# Crear el IconFrame
-icon_frame = IconFrame(screen, utils)
+# Función de reinicio
+
+
+def reset_application():
+    """Función que reinicia el estado de la aplicación."""
+    print("Reiniciando aplicación...")
+    global data
+    data = data_generator.generar_datos_random()
+
+    # Actualizar los frames con los nuevos datos
+    reporte_frame.update_data(data)
+    planta_frame.update_data(data)
+    terminal_frame.update_data(data)
+
+
+# Crear el IconFrame, pasando el callback de reinicio
+icon_frame = IconFrame(screen, utils, reset_application)
 
 # Crear la instancia de GraphicFrame con el rectángulo y los datos
 graphic_frame = GraphicFrame(ajustes)
@@ -87,20 +99,20 @@ while running:
     # Limpiar la pantalla
     screen.fill(whiteColor)
 
-    # Actualizar los valores de los frames
-    planta_frame.data_value = data.get(planta_frame.data_key, "N/A")
-    terminal_frame.data_value = data.get(terminal_frame.data_key, "N/A")
+    # Si la aplicación no está pausada, actualiza los frames
+    if not icon_frame.is_paused():
+        # Actualizar los valores de los frames
+        planta_frame.data_value = data.get(planta_frame.data_key, "N/A")
+        terminal_frame.data_value = data.get(terminal_frame.data_key, "N/A")
 
-    # Actualizar el gráfico con los datos relevantes
-    # Asegurarse de que los ajustes se actualizan
-    graphic_frame.data_values = ajustes
-    # Pasar el rectángulo para dibujar el gráfico en su nueva ubicación
-    graphic_frame.draw(screen)
+        # Actualizar el gráfico con los datos relevantes
+        graphic_frame.data_values = ajustes
+        graphic_frame.draw(screen)
 
-    # Dibujar los frames actualizados
-    reporte_frame.draw()
-    planta_frame.draw()  # Se dibuja el frame con la imagen y el rectángulo centrado
-    terminal_frame.draw()
+        # Dibujar los frames actualizados
+        reporte_frame.draw()
+        planta_frame.draw()  # Se dibuja el frame con la imagen y el rectángulo centrado
+        terminal_frame.draw()
 
     # Dibujar los íconos en el footer
     icon_frame.draw_icons()

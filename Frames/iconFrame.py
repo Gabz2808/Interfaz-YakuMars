@@ -2,9 +2,10 @@ import pygame
 
 
 class IconFrame:
-    def __init__(self, screen, utils):
+    def __init__(self, screen, utils, reset_app_callback):
         self.screen = screen
         self.utils = utils
+        self.reset_app_callback = reset_app_callback
 
         # Cargar las imágenes de los íconos
         self.pause_icon = pygame.transform.scale(pygame.image.load(
@@ -64,14 +65,16 @@ class IconFrame:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.pause_button_rect.collidepoint(event.pos):
                 self.paused = not self.paused
-                self.message = "Alerta: sistema pausado" if self.paused else "Alerta: sistema reanudado"
+                self.message = "Sistema pausado" if self.paused else "Sistema reanudado"
             elif self.start_button_rect.collidepoint(event.pos):
                 self.started = True
                 self.paused = False
-                self.message = "Alerta: sistema reanudado"
-                self.clear_message()  # Limpia el mensaje inmediatamente después de reanudar
+                self.message = "Continuando el sistema"
             elif self.reset_button_rect.collidepoint(event.pos):
-                self.message = "Alerta: sistema reiniciado"
+                self.reset_app_callback()  # Llamar a la función de reinicio
+                self.message = "Sistema reiniciado"
+                self.started = False
+                self.paused = False
 
     def _draw_message(self):
         """Dibuja el mensaje en la pantalla."""
@@ -82,10 +85,10 @@ class IconFrame:
             center=(self.screen.get_width() // 2, 50))
         self.screen.blit(message_surface, message_rect)
 
-        # Limpiar el mensaje después de un corto periodo
-        # Timer para limpiar el mensaje después de 2 segundos
-        pygame.time.set_timer(pygame.USEREVENT + 1, 2000)
+    def is_paused(self):
+        """Verifica si el sistema está pausado."""
+        return self.paused
 
-    def clear_message(self):
-        """Limpia el mensaje después de un tiempo o inmediatamente."""
-        self.message = ""
+    def is_started(self):
+        """Verifica si el sistema ha comenzado."""
+        return self.started

@@ -128,3 +128,8 @@ class PlantaFrame(Frame):
                                  (highlight_rect.x, highlight_rect.y))
                 # Dibuja el borde del rectángulo
                 pygame.draw.rect(self.screen, color, highlight_rect, 5)
+
+    def update_data(self, data):
+        """Update the data displayed in the frame."""
+        data_key = "Turbidez"
+        self.data_value = data.get(data_key, "N/A")
